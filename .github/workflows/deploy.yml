@@ -1,0 +1,25 @@
+name: Deploy
+on:
+  push:
+    branches:
+      - 'master'
+jobs:
+  deploy:
+    name: deploy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Python Setup
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.x'
+      - name: Python Packages
+        run: |
+          pip install --no-cache-dir --upgrade --requirement ${{ github.workspace }}/requirements.txt --requirement ${{ github.workspace }}/requirements/non_prod.txt
+      - name: Pylint
+        run: |
+          pylint -r y -s y -v --fail-under 75.0 discordpybot
+      - name: Pytest
+        run: |
+          pytest --cov=discordpybot --cov-report= --cov-branch tests/
